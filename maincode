@@ -1,0 +1,199 @@
+
+import speech_recognition as sr
+import sys
+import math
+from sympy import symbols, Eq, solve
+
+#read duration from the arguments
+#duration = int(sys.argv[1])
+duration=5
+# initialize the recognizer
+r = sr.Recognizer()
+print("Please talk")
+with sr.Microphone() as source:
+    # read the audio data from the default microphone
+    audio_data = r.record(source, duration=duration)
+    print("Recognizing...")
+    # convert speech to text
+    text = r.recognize_google(audio_data)
+    print("PREDICTED MATHEMATICAL EXPRESSION IS :")
+    text=text.replace(" square","**2")
+    text=text.replace(" X","*X")
+    print(text)
+    
+    text=text.replace("x","*")
+    #text=text.replace("square","*")
+ # Python3 program to evaluate a given  
+# expression where tokens are  
+# separated by space. 
+  
+# Function to find precedence 
+# of operators. 
+def precedence(op): 
+      
+    if op == '+' or op == '-': 
+        return 1
+    if op == '*' or op == '/': 
+        return 2
+    return 0
+  
+# Function to perform arithmetic 
+# operations. 
+def applyOp(a, b, op): 
+      
+    if op == '+': return a + b 
+    if op == '-': return a - b 
+    if op == '*': return a * b 
+    if op == '/': return a // b 
+  
+# Function that returns value of 
+# expression after evaluation. 
+def evaluate(tokens): 
+      
+    # stack to store integer values. 
+    values = [] 
+      
+    # stack to store operators. 
+    ops = [] 
+    i = 0
+      
+    while i < len(tokens): 
+          
+        # Current token is a whitespace, 
+        # skip it. 
+        if tokens[i] == ' ': 
+            i += 1
+            continue
+          
+        # Current token is an opening  
+        # brace, push it to 'ops' 
+        elif tokens[i] == '(': 
+            ops.append(tokens[i]) 
+          
+        # Current token is a number, push  
+        # it to stack for numbers. 
+        elif tokens[i].isdigit(): 
+            val = 0
+              
+            # There may be more than one 
+            # digits in the number. 
+            while (i < len(tokens) and
+                tokens[i].isdigit()): 
+              
+                val = (val * 10) + int(tokens[i]) 
+                i += 1
+              
+            values.append(val) 
+          
+        # Closing brace encountered,  
+        # solve entire brace. 
+        elif tokens[i] == ')': 
+          
+            while len(ops) != 0 and ops[-1] != '(': 
+              
+                val2 = values.pop() 
+                val1 = values.pop() 
+                op = ops.pop() 
+                  
+                values.append(applyOp(val1, val2, op)) 
+              
+            # pop opening brace. 
+            ops.pop() 
+          
+        # Current token is an operator. 
+        else: 
+          
+            # While top of 'ops' has same or  
+            # greater precedence to current  
+            # token, which is an operator.  
+            # Apply operator on top of 'ops'  
+            # to top two elements in values stack. 
+            while (len(ops) != 0 and
+                precedence(ops[-1]) >= precedence(tokens[i])): 
+                          
+                val2 = values.pop() 
+                val1 = values.pop() 
+                op = ops.pop() 
+                  
+                values.append(applyOp(val1, val2, op)) 
+              
+            # Push current token to 'ops'. 
+            ops.append(tokens[i]) 
+          
+        i += 1
+      
+    # Entire expression has been parsed  
+    # at this point, apply remaining ops  
+    # to remaining values. 
+    while len(ops) != 0: 
+          
+        val2 = values.pop() 
+        val1 = values.pop() 
+        op = ops.pop() 
+                  
+        values.append(applyOp(val1, val2, op)) 
+      
+    # Top of 'values' contains result, 
+    # return it. 
+    return values[-1] 
+  
+# Driver Code 
+if __name__ == "__main__": 
+    print("Enter 1 for simple no variable expression")
+    print("Enter 2 for  1 variable linear equation")
+    print("Enter 3 for 1 variable quadratic equation")
+    print("Enter 4 for trignometry")
+    c=int(input("Now Enter your choice: "))
+    if c == 1:
+        print(evaluate(text)) 
+    elif c == 2:
+        x=symbols('X')
+       # text=Eq(text)
+        text=text.replace(" X","*X")
+        e1=solve(text)
+        #e1=
+       # print(text+" = 0")
+        print("X = ")
+        print(e1)
+    elif c == 3:
+        text=text.replace(" square","**2")
+        text=text.replace(" X","*X")
+        # text=format(text)
+        print(text+" = 0")
+        x=symbols('X')
+        #text=Eq(text)
+        e2=solve(text,x)
+        print("X = ")
+        print(e2)
+    elif c==4:
+        a=text.index(' ')
+        b=math.radians(int(text[a+1:]))
+       # print (b)
+        if "sin" in text:
+            e1=math.sin(b)
+        elif "cos" in text:
+            e1=math.cos(b)
+        elif "tangent" in text:
+            e1=math.tan(b)
+        elif "cot" in text:
+            e1=1/math.tan(b)
+        elif "cosec" in text:
+            e1=1/math.sin(b)
+        elif "sec" in text:
+            e1=1/math.cos(b)
+        else:
+            print("Wrong Input")
+            exit()
+        #x=symbols('X')
+        #text=Eq(text)
+        #e1=solve(text)
+        #e1=
+       # print(text+" = 0")
+        print(" = ")
+        print(e1)
+        
+    else:
+        print("WRONG CHOICE")
+    #print(evaluate("100 * 2 + 12")) 
+   # print(evaluate("100 * ( 2 + 12 )")) 
+   # print(evaluate("100 * ( 2 + 12 ) / 14")) 
